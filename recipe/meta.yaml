@@ -1,5 +1,5 @@
 {% set name = "soem" %}
-{% set version = "1.4.0" %}
+{% set version = "2.0.0" %}
 
 package:
   name: {{ name }}
@@ -7,7 +7,7 @@ package:
 
 source:
   - url: https://github.com/OpenEtherCATsociety/{{ name }}/archive/v{{ version }}.tar.gz
-    sha256: e58e1e0c216dade84a76d2c10ab34d2fa156ca639eac00a8081be6e88911d86e
+    sha256: 1f1f38464c5542d8cd1b1d8f27d9af6422d03b9364a9f31ad66f1919f2898f16
     patches:
       - build-shlib.patch
 
@@ -21,6 +21,7 @@ requirements:
   build:
     - {{ compiler('cxx') }}              # [not win]
     - {{ compiler('c') }}                # [not win]
+    - {{ stdlib("c") }}                  # [not win]
     - vs2017_win-64                      # [win64]
     - vs2017_win-32                      # [win32]
     - ninja
