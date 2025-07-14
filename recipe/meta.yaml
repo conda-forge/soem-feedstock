@@ -8,12 +8,10 @@ package:
 source:
   - url: https://github.com/OpenEtherCATsociety/{{ name }}/archive/v{{ version }}.tar.gz
     sha256: 1f1f38464c5542d8cd1b1d8f27d9af6422d03b9364a9f31ad66f1919f2898f16
-    patches:
-      - build-shlib.patch
 
 build:
   number: 0
-  skip: true  # [osx]
+  skip: true  # [osx and win]
   run_exports:
     - {{ pin_subpackage(name, max_pin='x.x') }}
 
@@ -22,14 +20,8 @@ requirements:
     - {{ compiler('cxx') }}              # [not win]
     - {{ compiler('c') }}                # [not win]
     - {{ stdlib("c") }}                  # [not win]
-    - vs2017_win-64                      # [win64]
-    - vs2017_win-32                      # [win32]
     - ninja
     - cmake
-  host:
-    - pthread-stubs                      # [not win]
-  run:
-    - pthread-stubs                      # [not win]
 
 test:
   commands:
@@ -38,11 +30,12 @@ test:
     - test -f ${PREFIX}/lib/libsoem.so  # [not win]
     - if exist %PREFIX%\\Library\\include\\soem\\ethercat.h (exit 0) else (exit 1)  # [win]
     - if exist $PREFIX$\\Library\\lib\\soem.lib (exit 0) else (exit 1)  # [win]
+    - if exist $PREFIX$\\Library\\bin\\soem.dll (exit 0) else (exit 1)  # [win]
     - if exist $PREFIX$\\Library\\bin\\slaveinfo.exe (exit 0) else (exit 1)  # [win]
 
 about:
   home: https://openethercatsociety.github.io/
-  license: GPL-2.0
+  license: GPL-3.0-only
   license_file: LICENSE
   summary: |
     Simple Open Source EtherCAT Master
@@ -50,3 +43,4 @@ about:
 extra:
   recipe-maintainers:
     - seanyen
+    - traversaro
