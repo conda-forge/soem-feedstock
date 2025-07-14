@@ -16,7 +16,7 @@ build:
   # * the build by default uses a vendored hardcoded library for winpcap (https://github.com/OpenEtherCATsociety/SOEM/tree/master/oshw/win32/wpcap/Lib)
   # * even if we devendored winpcap, the library is deprecated (see https://github.com/microsoft/vcpkg/pull/33215 and https://www.winpcap.org/)
   # If anyone is interested in working on this, please check https://github.com/conda-forge/soem-feedstock/issues/3
-  skip: true  # [osx and win]
+  skip: true  # [osx or win]
   run_exports:
     - {{ pin_subpackage(name, max_pin='x.x') }}
 
