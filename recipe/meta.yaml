@@ -30,10 +30,11 @@ requirements:
 
 test:
   commands:
-    - test -f ${PREFIX}/include/soem/ethercat.h  # [not win]
+    # The include header changed from ethercat.h to soem/soem.h in soem 2.0
+    - test -f ${PREFIX}/include/soem/soem.h  # [not win]
     - test -f ${PREFIX}/bin/slaveinfo  # [not win]
     - test -f ${PREFIX}/lib/libsoem.so  # [not win]
-    - if exist %PREFIX%\\Library\\include\\soem\\ethercat.h (exit 0) else (exit 1)  # [win]
+    - if exist %PREFIX%\\Library\\include\\soem\\soem.h (exit 0) else (exit 1)  # [win]
     - if exist $PREFIX$\\Library\\lib\\soem.lib (exit 0) else (exit 1)  # [win]
     - if exist $PREFIX$\\Library\\bin\\soem.dll (exit 0) else (exit 1)  # [win]
     - if exist $PREFIX$\\Library\\bin\\slaveinfo.exe (exit 0) else (exit 1)  # [win]
