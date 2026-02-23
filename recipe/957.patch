@@ -1,0 +1,52 @@
+From 35e1f7c8623b59f37c4ed8f89ccdc3ee06c03a4e Mon Sep 17 00:00:00 2001
+From: siddharth deore <siddharth.deore@gbionics.ai>
+Date: Thu, 19 Feb 2026 13:09:03 +0100
+Subject: [PATCH 1/2] Fixes uninitialised value was created by a stack
+ allocation  by  ecx_setupnic (nicdrv.c:170)
+
+---
+ oshw/linux/nicdrv.c | 1 +
+ 1 file changed, 1 insertion(+)
+
+diff --git a/oshw/linux/nicdrv.c b/oshw/linux/nicdrv.c
+index 190d9033..5374176c 100644
+--- a/oshw/linux/nicdrv.c
++++ b/oshw/linux/nicdrv.c
+@@ -163,6 +163,7 @@ int ecx_setupnic(ecx_portt *port, const char *ifname, int secondary)
+    ifr.ifr_flags = ifr.ifr_flags | IFF_PROMISC | IFF_BROADCAST;
+    r |= ioctl(*psock, SIOCSIFFLAGS, &ifr);
+    /* bind socket to protocol, in this case RAW EtherCAT */
++   memset((void*)&sll, 0, sizeof(sll));
+    sll.sll_family = AF_PACKET;
+    sll.sll_ifindex = ifindex;
+    sll.sll_protocol = htons(ETH_P_ECAT);
+
+From 23bf1a81664c3fda73a4cd4b931d370cd6a47098 Mon Sep 17 00:00:00 2001
+From: siddharth deore <siddharth.deore@gbionics.ai>
+Date: Thu, 19 Feb 2026 13:12:32 +0100
+Subject: [PATCH 2/2] Fixes memory leak in ecx_config_init, free
+ mbxqueue->mbxmutex created by ecx_initmbxqueue (ec_main.c:338)
+
+---
+ src/ec_main.c | 8 ++++++++
+ 1 file changed, 8 insertions(+)
+
+diff --git a/src/ec_main.c b/src/ec_main.c
+index df1acbde..6c81be00 100644
+--- a/src/ec_main.c
++++ b/src/ec_main.c
+@@ -252,6 +252,14 @@ int ecx_init_redundant(ecx_contextt *context, ecx_redportt *redport, const char
+  */
+ void ecx_close(ecx_contextt *context)
+ {
++   /* These mutexes are created in ecx_config_init() and should be destroyed before closing the socket */
++   for (int lp = 0; lp < EC_MAXGROUP; lp++)
++   {
++      ec_mbxqueuet *mbxqueue = &(context->grouplist[lp].mbxtxqueue);
++      if (mbxqueue->mbxmutex)
++         osal_mutex_destroy(mbxqueue->mbxmutex);
++   }
++
+    osal_mutex_destroy(context->mbxpool.mbxmutex);
+    ecx_closenic(&context->port);
+ }
